@@ -1,0 +1,11 @@
+# Python
+*.pyc
+
+# tests
+*.vcd
+*.gtkw
+
+#binaries
+*.v
+*.vhdl
+*.eblif

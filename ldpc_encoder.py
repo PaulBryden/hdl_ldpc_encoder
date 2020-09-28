@@ -13,13 +13,13 @@ class LDPC_Encoder(Elaboratable):
 
 
         # result has 2x more bits
-        self.output = Signal(self.codeword_width)
+        self.output = Signal(self.codeword_width, reset=0)
  
         # used to start our multiplication
         self.start = Signal(1)
  
         # notify us when done
-        self.done = Signal(1)
+        self.done = Signal(1, reset=0)
     
  
     def ports(self):
@@ -29,18 +29,23 @@ class LDPC_Encoder(Elaboratable):
         m = Module()
         # counter will count the amount of addition we are doing
         cnt = Signal(self.data_input_length)
-        sigObtainResult = Signal(1)
-        tempMatrix = Array([Signal(unsigned(self.codeword_width)) for _ in range(self.data_input_length)])
+        Stage1Completed = Signal(1)
+        tempMatrix = Array([Signal(unsigned(self.codeword_width), reset=0) for _ in range(self.data_input_length)])
         #we are done when the cnt has reached 'width-1' steps
-        m.d.comb += sigObtainResult.eq(cnt == self.data_input_length-1)
-
+        m.d.comb += Stage1Completed.eq(cnt == self.data_input_length-1)
+        AdderBuffer = Array([Signal(unsigned(self.data_input_length), reset=0) for _ in range(self.codeword_width)])
         #check if we got 'start' asserted, if so reset the output and counter
         with m.If(self.start):
+            for i in range(0,self.codeword_width):
                 m.d.sync += [
-                    cnt.eq(0),
+                AdderBuffer[i].eq(0)
                 ]
-        wireTest1 = Array([Signal(unsigned(self.data_input_length)) for _ in range(self.codeword_width)])
-        with m.Elif(~sigObtainResult):
+            m.d.sync += [
+                cnt.eq(0),
+                self.done.eq(0),
+                self.output.eq(0),
+            ]
+        with m.Elif(~Stage1Completed):
             m.d.sync += [
                     cnt.eq(cnt + 1)
                 ]
@@ -54,17 +59,17 @@ class LDPC_Encoder(Elaboratable):
                 for n in range(1,self.data_input_length):
                     if(n==1):
                         m.d.sync += [
-                        wireTest1[i][n].eq(tempMatrix[n][i]^tempMatrix[n-1][i])
+                        AdderBuffer[i][n].eq(tempMatrix[n][i]^tempMatrix[n-1][i])
                         ]
                     else:
                         m.d.sync += [
-                        wireTest1[i][n].eq(wireTest1[i][n-1]^tempMatrix[n][i])
+                        AdderBuffer[i][n].eq(AdderBuffer[i][n-1]^tempMatrix[n][i])
                         ]
 
-        with m.Elif(sigObtainResult):
+        with m.Elif(Stage1Completed):
             for i in range(0,self.codeword_width):
                 m.d.sync += [
-                        self.output[i].eq( wireTest1[i][self.data_input_length-1]),
+                        self.output[i].eq( AdderBuffer[i][self.data_input_length-1]),
                         self.done.eq(1)
                     ]
 
@@ -89,7 +94,14 @@ if __name__ == "__main__":
     sim = Simulator(m)
 
     def process():
-        yield data_input.eq(0b0101)
+        yield data_input.eq(0b101)
+        yield start.eq(1)
+        yield Delay(1e-6)
+        yield start.eq(0)
+        yield Delay(1e-6)
+        for i in range(30):
+            yield Delay(1e-6)
+        yield data_input.eq(0b101)
         yield start.eq(1)
         yield Delay(1e-6)
         yield start.eq(0)
