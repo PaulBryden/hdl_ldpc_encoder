@@ -1,5 +1,7 @@
 # HDL LDPC Encoder  
-A customizable, nMigen-based LDPC Encoder IP Core. 
+A customizable, nMigen-based LDPC Encoder IP Core.  
+
+![Image](img/IP_Core.jpg)   
 ## Introduction  
 Presented here is a customizable, nMigen-based LDPC Encoder IP Core.  
 The core is located at src/ldpc_encoder.py.  
