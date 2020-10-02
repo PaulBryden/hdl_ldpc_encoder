@@ -7,7 +7,7 @@ from nmigen.asserts import Assert, Assume, Cover
 class LDPC_Encoder(Elaboratable):
     def __init__(self, GeneratorMatrix, codeword_width):
 
-        #[PARAMETER] - codeword_width: Width of the Codeword
+        #[PARAMETER] - codeword_width: Width of the output Codeword
         self.codeword_width = int(codeword_width)
 
         #[PARAMETER] - data_input_length: Width of the data input
@@ -78,7 +78,7 @@ class LDPC_Encoder(Elaboratable):
                 ]
             
         #Complete the first stage of the accumulation - AND the input data with the genmatrix
-        #Since this is in the combinatorial domain, there is no penalty as the size of the generator matrix and data input increases
+        #Since this is in the combinatorial domain, there is 'no penalty' as the size of the generator matrix and data input increases
             for i in range(0,self.codeword_width):
                 for n in range(0,self.data_input_length):
                     m.d.comb += [
@@ -86,6 +86,7 @@ class LDPC_Encoder(Elaboratable):
                     ]
         
         #Accumulate the columns of the matrix, with the Gallagher Modulo 2 rules
+        #https://ieeexplore.ieee.org/document/1057683
             for i in range(0,self.codeword_width):
                 for n in range(1,self.data_input_length):
                     if(n==1):
@@ -107,64 +108,3 @@ class LDPC_Encoder(Elaboratable):
                     ]
 
         return m
-
-
-def cover_statements(m):
-    LDPC_Encoder = m.submodules.LDPC_Encoder
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b000000))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b011001))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b110010))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b101011))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b111100))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b100101))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b001110))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b010111))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b000) & (LDPC_Encoder.output == 0b000000))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b011) & (LDPC_Encoder.output == 0b011001))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b110) & (LDPC_Encoder.output == 0b110010))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b101) & (LDPC_Encoder.output == 0b101011))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b111) & (LDPC_Encoder.output == 0b111100))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b100) & (LDPC_Encoder.output == 0b100101))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b001) & (LDPC_Encoder.output == 0b001110))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b010) & (LDPC_Encoder.output == 0b010111))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b011) & (LDPC_Encoder.output != 0b010111))
-    return
-
-def testbench_process():
-    yield data_input.eq(0b101)
-    yield start.eq(1)
-    yield Delay(1e-6)
-    yield start.eq(0)
-    yield Delay(1e-6)
-    for i in range(30):
-        yield Delay(1e-6)
-    yield data_input.eq(0b110)
-    yield start.eq(1)
-    yield Delay(1e-6)
-    yield start.eq(0)
-    for i in range(30):
-        yield Delay(1e-6)
-
-if __name__ == "__main__":
-    parser = main_parser()
-    args = parser.parse_args()
-
-    m = Module()
-    generatorMatrix = [ [0b100101],
-                        [0b010111],
-                        [0b001110], ]
-    m.submodules.LDPC_Encoder = LDPC_Encoder = LDPC_Encoder(generatorMatrix,6)
-
-    cover_statements(m)
-    main_runner(parser, args, m, ports=[LDPC_Encoder.data_input, LDPC_Encoder.output, LDPC_Encoder.start, LDPC_Encoder.done])    
-
-    #Simulation
-    data_input = Signal(len(generatorMatrix))
-    start = Signal(1)
-    m.d.comb += LDPC_Encoder.data_input.eq(data_input)
-    m.d.comb += LDPC_Encoder.start.eq(start)
-   # sim = Simulator(m)
-   # sim.add_sync_process(testbench_process) # or sim.add_sync_process(process), see below 
-   # sim.add_clock(1e-6)
-   # with sim.write_vcd("test.vcd", "test.gtkw", traces=[data_input,start] + LDPC_Encoder.ports()):
-    #    sim.run()
