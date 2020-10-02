@@ -1,9 +1,10 @@
-# HDL LDPC Encoder
+# HDL LDPC Encoder  
+A customizable, nMigen-based LDPC Encoder IP Core. 
 ## Introduction  
-
-A customizable, nMigen-based LDPC Encoder IP Core.  
-The nMigen-based core is located at src/ldpc_encoder.py. It was designed to be extremely flexible, fast and verifiable.  
-In order to use this core, the top-level nMigen module which instantiates the core simply needs to provide the length of the LDPC codeword output and the generator matrix 'G' as parameters like so:
+Presented here is a customizable, nMigen-based LDPC Encoder IP Core.  
+The core is located at src/ldpc_encoder.py.  
+The IP Core was designed to be extremely flexible, fast and verifiable.  
+In order to use this core, the top-level nMigen module which instantiates the core simply needs to provide the length of the LDPC codeword for a (k,n) LDPC code along with the appropriate generator matrix 'G' like so:
 
 ```python
     m = Module()
