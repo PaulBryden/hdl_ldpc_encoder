@@ -32,7 +32,7 @@ start - The signal which initiates the encoding process  (width: 1)
 
 **Output**  
 done - A signal which is high only when encoding has been completed (width: 1)  
-output - The encoded codeword  (width: m, where m = codeword size)  
+data_output - The encoded codeword  (width: m, where m = codeword size)  
 
 ***  
   

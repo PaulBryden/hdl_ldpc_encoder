@@ -9,37 +9,37 @@ def verification_statements(m):
     LDPC_Encoder = m.submodules.LDPC_Encoder
     
     #Ensure all codewords can be obtained
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b000000))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b011001))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b110010))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b101011))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b111100))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b100101))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b001110))
-    m.d.sync+=Cover((LDPC_Encoder.output == 0b010111))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b000000))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b011001))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b110010))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b101011))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b111100))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b100101))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b001110))
+    m.d.sync+=Cover((LDPC_Encoder.data_output == 0b010111))
 
 
     #Ensure invalid codewords cannot be obtained
-    m.d.sync+=Cover((LDPC_Encoder.output != 0b111111))
+    m.d.sync+=Cover((LDPC_Encoder.data_output != 0b111111))
 
 
     #Ensure the correct codeword output is obtained for each input word.
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b000) & (LDPC_Encoder.output == 0b000000))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b011) & (LDPC_Encoder.output == 0b011001))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b110) & (LDPC_Encoder.output == 0b110010))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b101) & (LDPC_Encoder.output == 0b101011))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b111) & (LDPC_Encoder.output == 0b111100))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b100) & (LDPC_Encoder.output == 0b100101))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b001) & (LDPC_Encoder.output == 0b001110))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b010) & (LDPC_Encoder.output == 0b010111))
-    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b011) & (LDPC_Encoder.output != 0b010111))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b000) & (LDPC_Encoder.data_output == 0b000000))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b011) & (LDPC_Encoder.data_output == 0b011001))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b110) & (LDPC_Encoder.data_output == 0b110010))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b101) & (LDPC_Encoder.data_output == 0b101011))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b111) & (LDPC_Encoder.data_output == 0b111100))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b100) & (LDPC_Encoder.data_output == 0b100101))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b001) & (LDPC_Encoder.data_output == 0b001110))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b010) & (LDPC_Encoder.data_output == 0b010111))
+    m.d.sync+=Cover((LDPC_Encoder.data_input == 0b011) & (LDPC_Encoder.data_output != 0b010111))
     
 
     
     #Ensure that done and output signals are reset when start is toggled.
     with m.If((LDPC_Encoder.start == 0) & Past(LDPC_Encoder.start)):
         m.d.sync+=Assert((LDPC_Encoder.done == 0))
-        m.d.sync+=Assert((LDPC_Encoder.output == 0))
+        m.d.sync+=Assert((LDPC_Encoder.data_output == 0))
 
     return
 
@@ -66,4 +66,4 @@ if __name__ == "__main__":
     #Run the design verification
     verification_statements(m)
 
-    main_runner(parser, args, m, ports=[LDPC_Encoder.data_input, LDPC_Encoder.output, LDPC_Encoder.start, LDPC_Encoder.done])    
+    main_runner(parser, args, m, ports=[LDPC_Encoder.data_input, LDPC_Encoder.data_output, LDPC_Encoder.start, LDPC_Encoder.done])    

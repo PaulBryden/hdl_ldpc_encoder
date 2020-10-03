@@ -22,4 +22,4 @@ if __name__ == "__main__":
     #Instantiate the LDPC_Encoder Module with the generator matrix and output codeword size as parameters
     m.submodules.LDPC_Encoder = LDPC_Encoder = LDPC_Encoder(generatorMatrix,9)
 
-    main_runner(parser, args, m, ports=[LDPC_Encoder.data_input, LDPC_Encoder.output, LDPC_Encoder.start, LDPC_Encoder.done])    
+    main_runner(parser, args, m, ports=[LDPC_Encoder.data_input, LDPC_Encoder.data_output, LDPC_Encoder.start, LDPC_Encoder.done])    

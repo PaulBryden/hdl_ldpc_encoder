@@ -22,15 +22,15 @@ class LDPC_Encoder(Elaboratable):
         #[INPUT] - data_input: The data to be encoded
         self.data_input = Signal(self.data_input_length)
         
-        #[OUTPUT] - output: The encoded data (codeword)
-        self.output = Signal(self.codeword_width, reset=0)
+        #[OUTPUT] - data_output: The encoded data (codeword)
+        self.data_output = Signal(self.codeword_width, reset=0)
  
         #[OUTPUT] - done: The done signal to indicate that encoding has completed.
         self.done = Signal(1, reset=0)
     
  
     def ports(self):
-        return [self.data_input, self.output, self.start, self.done]
+        return [self.data_input, self.data_output, self.start, self.done]
 
     def elaborate(self, platform):
         #Instantiate the Module
@@ -66,7 +66,7 @@ class LDPC_Encoder(Elaboratable):
             m.d.sync += [
                 cnt.eq(0),
                 self.done.eq(0),
-                self.output.eq(0),
+                self.data_output.eq(0),
                 data_input_copy.eq(self.data_input),
                 running.eq(1)
             ]
@@ -102,7 +102,7 @@ class LDPC_Encoder(Elaboratable):
         with m.Elif(accumulation_completed & running):
             for i in range(0,self.codeword_width):
                 m.d.sync += [
-                        self.output[i].eq( adder_buffer[i][self.data_input_length-1]),
+                        self.data_output[i].eq( adder_buffer[i][self.data_input_length-1]),
                         self.done.eq(1),
                         running.eq(0)
                     ]
