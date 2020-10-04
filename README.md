@@ -1,5 +1,6 @@
 # HDL LDPC Encoder  
 A customizable, nMigen-based LDPC Encoder IP Core.  
+Produced for educational purposes.  
 
 ![Image](img/IP_Core.jpg)   
 ## Introduction  
